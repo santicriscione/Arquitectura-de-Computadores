@@ -1,0 +1,157 @@
+DATA:
+
+CODE:
+
+/////////////////////MAIN/////////////////////////////////////// 
+
+espera:         //Revisa si los jugadores esperaron para apretar los botones
+MOV A, (3)      // Cargamos el valor de los botones en A
+CMP A, 0
+JEQ esperaron
+CALL no_esperaron  //Si hay un boton activo se llama a la subrutina sp= -1
+
+esperaron:      //Revisa si el swicth para iniciar el juego se ha activado
+MOV B,(1)       // Cargamos el valor de los switches en B
+MOV A, 1
+AND A, B        // Revisamos si el primer switch está encendido
+CMP A, 1
+JNE espera      // si el switch no está encendido no parte el juego
+
+count_down:     //Empieza el conteo en tres una vez el switch se haya activado
+MOV B, 3
+MOV (2), B      // Mostremos en el diplay el numero 3
+MOV B, (4)      // Cargamos los segundos en B
+
+count_to_dos:   //Cuenta de tres a dos luego de un segundo
+MOV A, (4)      // Cargamos los segundos en A
+SUB A, B  
+CMP A, 1        // Si pasó un segundo    
+JNE count_to_dos
+MOV B, 2
+MOV (2), B      // Mostremos en el diplay el numero 2
+MOV B, (4)      // Cargamos los segundos en B
+
+count_to_uno:   //Cuenta de dos a uno luego de un segundo
+MOV A, (4)      // Cargamos los segundos en A
+SUB A, B  
+CMP A, 1        // Si pasó un segundo   
+JNE count_to_uno
+MOV B, 1
+MOV (2), B      // Mostremos en el diplay el numero 1
+MOV B, (4)      // Cargamos los segundos en B
+
+count_to_cero:  //Cuenta de uno a cero luego de un segundo
+MOV A, (4)      // Cargamos los segundos en A
+SUB A, B  
+CMP A, 1        // Si pasó un segundo   
+JNE count_to_cero
+MOV B, 0
+MOV (2), B      // Mostremos en el diplay el numero 0
+MOV B, (5)      // Cargamos los milisegundos en B
+
+juego:          // Revisamos si se ha apretado algun boton y se determina el ganador
+MOV A, (3)      // Cargamos los botones en A
+CMP A, 0       
+JEQ juego       // Si nadie apreto se vuelve al loop
+PUSH A          // Se pushea a los botones  sp= - 1
+MOV A, (5)      // Se cargan los milisegundos actuales en A
+SUB B,A         // Se calcula la cuenta se demoro en milisegundos en apretar un boton en B
+POP A           // Se recuperan los botones en A  sp= 0
+MOV (0), B      // Se cargan los milisegundos que demoro el ganador en los leds
+MOV B,A
+AND A,1         // Revisamos si el jugador 1 gano 00001
+CMP A,0
+JEQ uno_no_gano //si uno no gano continua continua
+MOV A, 1
+MOV (2), A      //si uno gano se carga el numero uno en el display
+JMP end
+
+uno_no_gano:
+MOV A, B
+AND A,2            // Revisamos si el jugador 2 gano 00010
+CMP A,0
+JEQ dos_no_gano    //si dos no gano continua
+MOV A, 2
+MOV (2), A         //si dos gano se carga el numero dos en el display
+JMP end
+
+dos_no_gano:
+MOV A,B
+AND A,4            // Revisamos si el jugador 3 gano 00100
+CMP A,0
+JEQ tres_no_gano   //si tres no gano continua
+MOV A, 3
+MOV (2), A         //si tres gano se carga el numero tres en el display
+JMP end
+
+tres_no_gano:
+MOV A,B
+AND A,8            // Revisamos si el jugador 4 gano 01000
+CMP A,0
+JEQ cuatro_no_gano //si cuatro no gano continua
+MOV A, 4
+MOV (2), A         //si cuatro gano se carga el numero cuatro en el display
+JMP end
+
+cuatro_no_gano:
+MOV A, 5
+MOV (2), A         //cinco gano y se carga el numero cinco en el display
+
+end:
+MOV A, (1)         //Se cargan los switches en A
+AND A,1
+CMP A,1
+JEQ end 
+MOV A, 0 
+MOV (0),A
+MOV (2),A 
+JMP espera         // Si se desactiva el switch se vuelve a jugar
+
+/////////////////////SUBRUTINAS/////////////////////////////////
+
+//// SUBRUTINA UNO ////
+
+no_esperaron:
+MOV B, A
+AND A,1         // Revisamos si el jugador 1 espero 00001
+CMP A,0
+JEQ uno_espero  //si uno espero continua
+MOV A, 1
+MOV (2), A      //si uno no espero se carga el numero uno en el display
+
+uno_espero:
+MOV A, B
+AND A,2         // Revisamos si el jugador 2 espero 00010
+CMP A,0
+JEQ dos_espero  //si dos espero continua
+MOV A, 2
+MOV (2), A      //si dos no espero se carga el numero dos en el display
+
+dos_espero:
+MOV A,B
+AND A,4         // Revisamos si el jugador 3 espero 00100
+CMP A,0
+JEQ tres_espero //si tres espero continua
+MOV A, 3
+MOV (2), A      //si tres no espero se carga el numero tres en el display
+
+tres_espero:
+MOV A,B
+AND A,8            // Revisamos si el jugador 4 espero 01000
+CMP A,0
+JEQ cuatro_espero  //si cuatro espero continua
+MOV A, 4
+MOV (2), A         //si cuatro no espero se carga el numero cuatro en el display
+
+cuatro_espero:
+MOV A,B
+AND A,16           // Revisamos si el jugador 5 espero 10000
+CMP A,0
+JEQ cinco_espero   //si cinco espero continua
+MOV A, 5
+MOV (2), A         //si cinco no espero se carga el numero cinco en el display
+
+cinco_espero:
+RET                //finaliza la subrutina sp=0
+
+///////////////////////

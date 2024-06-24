@@ -1,0 +1,16 @@
+DATA:
+a 2
+    4
+    5
+    3
+    6
+    7
+CODE:
+MOV A, (a)
+ADD A, 2
+MOV B, A
+ADD B, 5
+MOV A, B
+SUB B, 6
+MOV A, (B)
+

@@ -1,0 +1,195 @@
+DATA:
+
+jugador 8192
+puno 0
+pdos 0
+partida 0
+numero 0
+
+CODE:
+
+/////////////////////MAIN///////////////////////////////////////
+
+start:
+MOV A, (3)
+AND A, 1
+CMP A, 1
+JNE start
+
+quien_juega:
+MOV A, 0
+MOV (0), A
+MOV (2), A
+MOV A, (jugador)
+CMP A, 4096
+JEQ juega_dos
+JMP juega_uno
+
+juega_uno:
+MOV A, 4096
+MOV (jugador), A
+MOV (2), A 
+JMP juego
+
+juega_dos:
+MOV A, 8192
+MOV (jugador), A
+MOV (2), A 
+
+juego:
+MOV A, (1)
+CMP A, 0
+JNE juego
+MOV A, (4)
+ADD A, (5)
+ADD A, (6)
+ADD A, 4532
+MOV (numero), A
+MOV (0), A
+MOV B, (4)
+MOV A, B
+
+countdown:
+MOV A, (1)
+CMP A, 0
+JNE finish_countdown
+MOV A, (4)
+SUB A,B
+ADD A, (jugador)
+MOV (2), A
+MOV A, (4)
+SUB A,B 
+CMP A, 10
+JLT countdown
+
+finish_countdown:
+MOV A, 0
+MOV (0), A
+MOV A, (jugador)
+MOV (2), A
+MOV B, (4)
+
+turn:
+MOV A, (4)
+SUB A,B
+ADD A, (jugador)
+MOV (2), A
+MOV A, (numero)
+CMP A, (1)
+JEQ finish_win
+MOV A,(4)
+SUB A,B 
+CMP A, 10
+JLT turn
+MOV A, (jugador)
+ADD A, 2730
+MOV (2), A
+JMP finish_loose
+
+finish_win:
+MOV A, (jugador)
+ADD A, 2730
+MOV (2), A
+MOV A, (4)
+SUB B, A 
+MOV A, 15
+SUB B, A
+CALL suma_puntos
+JMP end
+
+finish_loose:
+MOV B, 0
+CALL suma_puntos
+
+end:
+INC (partida)
+MOV B, (4)
+
+loop_end:
+MOV A, (4)
+SUB A,B 
+CMP A,3
+JLT loop_end
+
+restart:
+MOV A, (partida)
+CMP A, 6
+JLT quien_juega
+MOV A, -21846
+MOV (2), A
+MOV B, (4)
+cero:
+MOV A, (4)
+SUB A,B 
+CMP A,1
+JLT cero
+CALL show_winner_points
+CALL data_reset
+JMP start
+
+
+////////////////////SUBRUTINAS/////////////////////////////////
+
+//// SUBRUTINA UNO ////
+
+suma_puntos: //Revisa si los puntos son del jugador 1 o 2 (en B esta el puntaje)
+MOV A, (jugador)
+CMP A, 4096
+JEQ suma_puntos_uno
+JMP suma_puntos_dos
+
+suma_puntos_uno: // Suma los puntos al jugador uno
+MOV A, (puno)
+ADD A, B
+MOV (puno), A
+JMP end_suma_puntos
+
+suma_puntos_dos: //Suma los puntos al jugador dos
+MOV A, (pdos)
+ADD A, B
+MOV (pdos), A
+
+end_suma_puntos: //Retorna
+MOV B, (jugador)
+ADD A, B 
+MOV (2), A
+RET
+
+///////////////////////
+
+//// SUBRUTINA DOS ////
+
+data_reset:
+MOV A, 8192
+MOV (jugador), A 
+MOV A, 0
+MOV (puno), A
+MOV (pdos), A
+MOV (partida), A
+RET
+
+///////////////////////
+
+//// SUBRUTINA TRES ////
+
+show_winner_points:
+MOV A, (puno)
+MOV B, (pdos)
+CMP A,B 
+JGE gano_uno
+JMP gano_dos
+
+gano_uno:
+ADD A, 4096
+JMP end_winner
+
+gano_dos:
+MOV A, (pdos)
+ADD A, 8192
+
+end_winner:
+MOV (2), A 
+RET
+
+
+///////////////////////

@@ -1,0 +1,8 @@
+DATA:
+
+CODE:
+loop:
+MOV A, 3
+MOV B, 2
+SUB B,A
+MOV (2), B

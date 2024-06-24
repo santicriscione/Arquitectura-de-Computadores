@@ -1,0 +1,22 @@
+DATA:
+a 10
+b 2
+CODE:
+JMP no_add
+MOV A,2
+sub:
+SUB A,(1)
+RET
+add:
+ADD A,(a)
+CALL sub
+RET
+no_add:
+MOV B, 4
+MOV A,3
+CALL add
+MOV B,A
+PUSH B 
+MOV A, 2
+POP A 
+MOV B,b
